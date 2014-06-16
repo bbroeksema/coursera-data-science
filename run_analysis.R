@@ -16,5 +16,6 @@ test_subject <- read.table("data//UCI HAR Dataset//test//subject_test.txt", head
 test <- cbind(test_x, test_y, test_subject)
 rm(test_x, test_y, test_subject)
 
+# Next merge the test and training datasets.
 data <- rbind(test, train)
 rm(test, train)
