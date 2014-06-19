@@ -170,3 +170,28 @@ colnames <- c(
     "Activity", "Subject"
 );
 names(data) <- colnames
+
+# Creates a second, independent tidy data set with the average of each variable
+# for each activity and each subject.
+
+# FIXME: I guess there are smarter and more elegant ways to do this in stead of
+# using nested for loops. I'm running out of time though and this sort of works,
+# so I'll keep it like this and will see during the reviews how others did it
+# more elegantly (hopefully)
+
+dataBySubject <- split(data, data$Subject)
+df <- NULL
+for (i in 1:length(dataBySubject)) {
+    # For each subject
+    dataForSubject <- dataBySubject[[i]]
+    dataForSubjectMean <- by(dataForSubject[,1:73], dataForSubject$Activity, function(x) sapply(x, mean))
+    for (j in 1:length(dataForSubjectMean)) {
+        # For each activity
+        activity <- names(dataForSubjectMean[j])
+        row <- as.list(dataForSubjectMean[[activity]])
+        row$Activity <- activity
+        row$Subject <- i
+        df <- rbind(df, row)
+    }
+}
+
