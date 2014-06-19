@@ -195,3 +195,5 @@ for (i in 1:length(dataBySubject)) {
     }
 }
 
+# Now write out the final tidy dataset as requested.
+write.csv(df, file="data/variable_average_per_subject.csv")
