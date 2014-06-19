@@ -71,3 +71,102 @@ data[,activityCol] <- cut(data[,activityCol], breaks=6, labels=c("Walking", "Wal
                                                                  "Walking downstairs", "sitting",
                                                                  "Standing", "Laying")
 )
+
+# Appropriately labels the data set with descriptive variable names.
+colnames <- c(
+    # tBodyAcc-(mean|std)-(X|Y|Z)
+    "Body.Accelleration.X.Mean",
+    "Body.Accelleration.Y.Mean",
+    "Body.Accelleration.Z.Mean",
+    "Body.Accelleration.X.StdDev",
+    "Body.Accelleration.Y.StdDev",
+    "Body.Accelleration.Z.StdDev",
+    # tGravityAcc-(mean|std)-(X|Y|Z)
+    "Gravity.Accelleration.X.Mean",
+    "Gravity.Accelleration.Y.Mean",
+    "Gravity.Accelleration.Z.Mean",
+    "Gravity.Accelleration.X.StdDev",
+    "Gravity.Accelleration.Y.StdDev",
+    "Gravity.Accelleration.Z.StdDev",
+    # tBodyAccJerk-(mean|std)-(X|Y|Z)
+    "Body.Accelleration.Jerk.X.Mean",
+    "Body.Accelleration.Jerk.Y.Mean",
+    "Body.Accelleration.Jerk.Z.Mean",
+    "Body.Accelleration.Jerk.X.StdDev",
+    "Body.Accelleration.Jerk.Y.StdDev",
+    "Body.Accelleration.Jerk.Z.StdDev",
+    # tBodyGyro-(mean|std)-(X|Y|Z)
+    "Body.Gyroscope.X.Mean",
+    "Body.Gyroscope.Y.Mean",
+    "Body.Gyroscope.Z.Mean",
+    "Body.Gyroscope.X.StdDev",
+    "Body.Gyroscope.Y.StdDev",
+    "Body.Gyroscope.Z.StdDev",
+    # tBodyGyroJerk-(mean|std)-(X|Y|Z)
+    "Body.Gyroscope.Jerk.X.Mean",
+    "Body.Gyroscope.Jerk.Y.Mean",
+    "Body.Gyroscope.Jerk.Z.Mean",
+    "Body.Gyroscope.Jerk.X.StdDev",
+    "Body.Gyroscope.Jerk.Y.StdDev",
+    "Body.Gyroscope.Jerk.Z.StdDev",
+    # tBodyAccMag-(mean|std)
+    "Body.Accelleration.Magnitude.Mean",
+    "Body.Accelleration.Magnitude.StdDev",
+    # tGravityAccMag-(mean|std)
+    "Gravity.Accelleration.Magnitude.Mean",
+    "Gravity.Accelleration.Magnitude.StdDev",
+    # tBodyAccJerkMag-(mean|std)
+    "Body.Accelleration.Jerk.Magnitude.Mean",
+    "Body.Accelleration.Jerk.Magnitude.StdDev",
+    # tBodyGyroMag-(mean|std)
+    "Body.Gyroscope.Magnitude.Mean",
+    "Body.Gyroscope.Magnitude.StdDev",
+    # tBodyGyroJerkMag-(mean|std)
+    "Body.Gyroscope.Jerk.Magnitude.Mean",
+    "Body.Gyroscope.Jerk.Magnitude.StdDev",
+    # fBodyAcc-(mean|std)-(X|Y|Z)
+    "Freq.Body.Accelleration.X.Mean",
+    "Freq.Body.Accelleration.Y.Mean",
+    "Freq.Body.Accelleration.Z.Mean",
+    "Freq.Body.Accelleration.X.StdDev",
+    "Freq.Body.Accelleration.Y.StdDev",
+    "Freq.Body.Accelleration.Z.StdDev",
+    # fBodyAccJerk-(mean|std)-(X|Y|Z)
+    "Freq.Body.Accelleration.Jerk.X.Mean",
+    "Freq.Body.Accelleration.Jerk.Y.Mean",
+    "Freq.Body.Accelleration.Jerk.Z.Mean",
+    "Freq.Body.Accelleration.Jerk.X.StdDev",
+    "Freq.Body.Accelleration.Jerk.Y.StdDev",
+    "Freq.Body.Accelleration.Jerk.Z.StdDev",
+    # fBodyGyro-(mean|std)-(X|Y|Z)
+    "Freq.Body.Gyroscope.Jerk.X.Mean",
+    "Freq.Body.Gyroscope.Jerk.Y.Mean",
+    "Freq.Body.Gyroscope.Jerk.Z.Mean",
+    "Freq.Body.Gyroscope.Jerk.X.StdDev",
+    "Freq.Body.Gyroscope.Jerk.Y.StdDev",
+    "Freq.Body.Gyroscope.Jerk.Z.StdDev",
+    # fBodyAccMag-(mean|std)
+    "Freq.Body.Accelleration.Magnitude.Mean",
+    "Freq.Body.Accelleration.Magnitude.StdDev",
+    # fBodyBodyAccJerkMag-(mean|std)
+    "Freq.Body.Accelleration.Jerk.Magnitude.Mean",
+    "Freq.Body.Accelleration.Jerk.Magnitude.StdDev",
+    # fBodyBodyGyroMag-(mean|std)
+    "Freq.Body.Gyroscope.Magnitude.Mean",
+    "Freq.Body.Gyroscope.Magnitude.StdDev",
+    # fBodyBodyGyroJerkMag-(mean|std)
+    "Freq.Body.Gyroscope.Jerk.Magnitude.Mean",
+    "Freq.Body.Gyroscope.Jerk.Magnitude.StdDev",
+    # angle(tBodyAccMean,gravity|tBodyAccJerkMean,gravityMean|tBodyGyroMean,gravityMean|
+    #       tBodyGyroJerkMean,gravityMean)|X,gravityMean|Y,gravityMean|Z,gravityMean)
+    "Angle(Body.Acceleration.Mean, Gravity)",
+    "Angle(Body.Acceleration.Jerk.Mean, Gravity.Mean)",
+    "Angle(Body.Gyroscope.Mean, Gravity.Mean)",
+    "Angle(Body.Gyroscope.Jerk.Mean, Gravity.Mean)",
+    "Angle(X, Gravity.Mean)",
+    "Angle(Y, Gravity.Mean)",
+    "Angle(Z, Gravity.Mean)",
+    # label, subject
+    "Activity", "Subject"
+);
+names(data) <- colnames
