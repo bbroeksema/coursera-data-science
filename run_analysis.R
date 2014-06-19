@@ -66,7 +66,8 @@ cols <- c(
 data <- data[,cols]
 
 # Uses descriptive activity names to name the activities in the data set
-data[,87] <- cut(data[,87], breaks=6, labels=c("Walking", "Walking upstairs",
-                                               "Walking downstairs", "sitting",
-                                               "Standing", "Laying")
+activityCol = length(cols) - 1
+data[,activityCol] <- cut(data[,activityCol], breaks=6, labels=c("Walking", "Walking upstairs",
+                                                                 "Walking downstairs", "sitting",
+                                                                 "Standing", "Laying")
 )
