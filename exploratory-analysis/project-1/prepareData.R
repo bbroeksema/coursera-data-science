@@ -20,7 +20,7 @@ if (!file.exists(dataUnzipped)) {
     unzip(dataZipped, exdir=dataDir)
 }
 
-if (is.null(householdData)) {
+if (!exists("householdData") || is.null(householdData)) {
     # Prepare the data for plotting
     householdData <- fread(dataUnzipped, na.strings="?")
 
@@ -51,8 +51,6 @@ if (is.null(householdData)) {
     householdData$Sub_metering_2 <- as.numeric(householdData$Sub_metering_2)
     householdData$Sub_metering_3 <- as.numeric(householdData$Sub_metering_3)
 }
-
-
 
 # We no longer need thos, clean up the workspace.
 rm(dataUrl, dataDir, dataZipped, dataUnzipped)
