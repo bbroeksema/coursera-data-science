@@ -14,3 +14,5 @@ with(totalEmissionForAllSources, {
   }
 )
 dev.off()
+
+rm(ticks, totalEmissionForAllSources)
