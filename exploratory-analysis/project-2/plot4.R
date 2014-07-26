@@ -7,6 +7,13 @@
 source("prepareData.R")
 library(ggplot2)
 library(scales)
+if (!exists(c('NEI', 'SCC'))) {
+  if (! "summarySCC_PM25.rds" %in% dir("data"))
+    stop("Please download NEI_data.zip and extract the files into a dir called data")
+  library(data.table)
+  NEI <- data.table(readRDS("data/summarySCC_PM25.rds"))
+  SCC <- data.table(readRDS("data/Source_Classification_Code.rds"))
+}
 
 coalCombustionRelatedSources <- SCC[grep('.*Comb.*Coal.*', Short.Name),]
 

@@ -4,8 +4,14 @@
 # emissions from 1999–2008? Use the ggplot2 plotting system to make a plot
 # answer this question.
 
-source("prepareData.R")
 library(ggplot2)
+if (!exists(c('NEI', 'SCC'))) {
+  if (! "summarySCC_PM25.rds" %in% dir("data"))
+    stop("Please download NEI_data.zip and extract the files into a dir called data")
+  library(data.table)
+  NEI <- data.table(readRDS("data/summarySCC_PM25.rds"))
+  SCC <- data.table(readRDS("data/Source_Classification_Code.rds"))
+}
 
 totalEmissionsBaltimore <- NEI[fips == "24510", list(Emissions = sum(Emissions)), by = c('year', 'type')]
 png(filename="plot3.png")
