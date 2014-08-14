@@ -1,20 +1,69 @@
-# Reproducible Research: Peer Assessment 1
+## Reproducible Research: Peer Assessment 1
+
+### Loading and preprocessing the data
+
+We first unzip the data and read it into R.
+
+```{r}
+unzip("activity.zip")
+activity <- read.csv("activity.csv")
+```
+
+Next we process the data to make it suitable for further analysis. In this case
+it means properly parsing the date string as a Date object.
+
+```{r}
+activity$date <- as.Date(activity$date, format="%Y-%m-%d")
+```
+
+### What is mean total number of steps taken per day?
+
+For this part of the analysis, we ignore the missing values in the dataset.
+
+```{r}
+activityNoNa <- activity[!is.na(activity$steps),]
+```
+
+Next, we summarize the data to get steps per day. 
+
+```{r}
+stepsPerDay <- rowsum(activityNoNa, activityNoNa$date)[, c(1,2)]
+stepsPerDay$date <- as.Date(row.names(stepsPerDay), format="%Y-%m-%d")
+```
+Let's see how the steps per day have evolved over time by plotting a histogram.
+
+```{r}
+library(ggplot2)
+stepsPerDayPlot <- ggplot(stepsPerDay, aes(x = date, y = steps))
+stepsPerDayPlot <- stepsPerDayPlot + geom_bar(stat = "identity")
+stepsPerDayPlot
+```
+
+As we can see in the plot, the number of steps is quite differring. There are
+various days on which no steps where recorded at all. A peak can be found around
+the end of November.
+
+When we have a look at the **mean** and **median** total number of steps taken
+per day:
+
+```{r}
+mean(stepsPerDay$steps)
+median(stepsPerDay$steps)
+```
+
+we see that they don't differ a lot. Suggesting that the distribution is quite
+symetric. This is confirmed when we look at the histogram:
+
+```{r}
+qplot(stepsPerDay$step, geom="bar")
+```
+
+### What is the average daily activity pattern?
 
 
-## Loading and preprocessing the data
+
+### Imputing missing values
 
 
 
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
