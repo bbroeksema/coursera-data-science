@@ -27,7 +27,7 @@ activityNoNa <- activity[!is.na(activity$steps),]
 Next, we summarize the data to get steps per day. 
 
 ```{r}
-stepsPerDay <- rowsum(activityNoNa, activityNoNa$date)[, c(1,2)]
+stepsPerDay <- rowsum(activityNoNa, activityNoNa$date)
 stepsPerDay$date <- as.Date(row.names(stepsPerDay), format="%Y-%m-%d")
 ```
 Let's see how the steps per day have evolved over time by plotting a histogram.
@@ -60,7 +60,27 @@ qplot(stepsPerDay$step, geom="bar")
 
 ### What is the average daily activity pattern?
 
+To answer this question we first make a time series plot of the 5-minute
+interval (x-axis) and the average number of steps taken, averaged across all
+days (y-axis):
 
+```{r}
+stepsPerInterval <- aggregate(activityNoNa, list(interval = activityNoNa$interval), mean)
+stepsPerInterval$interval <- formatC(stepsPerInterval$interval, width = 4, format = "d", flag = "0")
+stepsPerInterval$time <- as.POSIXct(stepsPerInterval$interval, format="%H%M")
+stepsPerIntervalPlot <- ggplot(stepsPerInterval, aes(x = time, y = steps)) +
+   geom_bar(stat = "identity")
+stepsPerIntervalPlot
+```
+
+We can get the 5-minute interval, that on average across all the days in the
+dataset, contains the maximum number of steps as follows:
+
+```{r}
+mostStepsOfTheDay <- stepsPerInterval[which.max(stepsPerInterval$steps),]$interval
+```
+
+That is, this person, on average takes the most steps at `r mostStepsOfTheDay`.
 
 ### Imputing missing values
 
