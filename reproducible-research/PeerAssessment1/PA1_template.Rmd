@@ -84,6 +84,61 @@ That is, this person, on average takes the most steps at `r mostStepsOfTheDay`.
 
 ### Imputing missing values
 
+Note that there are a number of days/intervals where there are missing values
+(coded as `NA`). The presence of missing days may introduce bias into some
+calculations or summaries of the data.
 
+Therefore we calculate and report the total number of missing values in the
+dataset (i.e. the total number of rows with `NA`s):
+
+```{r}
+sum(is.na(activity$steps))
+```
+
+Next, we devise a strategy for filling in all of the missing values in the
+dataset:
+
+As we have already calculated the mean value for each interval, we will reuse
+these values to fill in the gaps.
+
+Now we have chosen a strategy, we create a new dataset that is equal to the
+original dataset but with the missing data filled in.
+
+```{r}
+activityImputed <- NULL
+activityMissing <- activity[is.na(activity$steps), ]
+
+for(i in 1:nrow(activityMissing)) {
+    row <- activityMissing[i,]
+    row$steps <- stepsPerInterval[stepsPerInterval$interval == row$interval, ]$steps[1]
+    activityImputed <<- rbind(row, activityImputed)
+}
+
+activityImputed <- rbind(activityImputed, activity[!is.na(activity$steps), ])
+```
+
+We reuse our code from before to ake a histogram of the total number of steps
+taken each day.
+
+```{r}
+stepsPerDayImp <- rowsum(activityImputed, activityImputed$date)
+stepsPerDayImp$date <- as.Date(row.names(stepsPerDayImp), format="%Y-%m-%d")
+
+stepsPerDayImpPlot <- ggplot(stepsPerDayImp, aes(x = date, y = steps))
+stepsPerDayImpPlot <- stepsPerDayImpPlot + geom_bar(stat = "identity")
+stepsPerDayImpPlot
+```
+
+Next, we calculate and report the **mean** and **median** total number of steps
+taken per day.
+
+```{r}
+mean(stepsPerDayImp$steps)
+median(stepsPerDayImp$steps)
+```
+
+As we can see, this hardly changes the values which we calculated before. The
+most 'striking' difference is that now the median and the average steps per day
+are exactly the same.
 
 ### Are there differences in activity patterns between weekdays and weekends?
