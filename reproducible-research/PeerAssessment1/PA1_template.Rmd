@@ -142,3 +142,30 @@ most 'striking' difference is that now the median and the average steps per day
 are exactly the same.
 
 ### Are there differences in activity patterns between weekdays and weekends?
+
+We use the dataset with the filled-in missing values for this part. First we 
+create a new factor variable in the dataset with two levels -- "weekday" and
+"weekend" indicating whether a given date is a weekday or weekend day.
+
+```{r}
+weekends <- activityImputed$date
+weekends <- weekdays(weekends) %in% c("Saturday", "Sunday")
+activityImputed <- transform(activityImputed, week = ifelse(weekends ,'weekend', 'weekday'))
+activityImputed$week <- as.factor(activityImputed$week)
+```
+
+Finally, we make a panel plot containing a time series plot of the 5-minute
+interval (x-axis) and the average number of steps taken, averaged across all
+weekday days or weekend days (y-axis).
+
+```{r}
+stepsPerIntervalByWeek <-
+  aggregate(activityImputed, list(interval = activityImputed$interval, week = activityImputed$week), mean)
+stepsPerIntervalByWeek$time <- formatC(stepsPerIntervalByWeek$interval, width = 4, format = "d", flag = "0")
+stepsPerIntervalByWeek$time <- as.POSIXct(stepsPerIntervalByWeek$time, format="%H%M")
+
+g <- ggplot(stepsPerIntervalByWeek, aes(x = time, y = steps))
+g <- g + geom_bar(stat = "identity")
+g <- g + facet_wrap(~week, ncol=2)
+g
+```
