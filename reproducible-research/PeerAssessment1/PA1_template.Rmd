@@ -66,8 +66,8 @@ days (y-axis):
 
 ```{r}
 stepsPerInterval <- aggregate(activityNoNa, list(interval = activityNoNa$interval), mean)
-stepsPerInterval$interval <- formatC(stepsPerInterval$interval, width = 4, format = "d", flag = "0")
-stepsPerInterval$time <- as.POSIXct(stepsPerInterval$interval, format="%H%M")
+stepsPerInterval$time <- formatC(stepsPerInterval$interval, width = 4, format = "d", flag = "0")
+stepsPerInterval$time <- as.POSIXct(stepsPerInterval$time, format="%H%M")
 stepsPerIntervalPlot <- ggplot(stepsPerInterval, aes(x = time, y = steps)) +
    geom_bar(stat = "identity")
 stepsPerIntervalPlot
