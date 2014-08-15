@@ -158,7 +158,7 @@ Finally, we make a panel plot containing a time series plot of the 5-minute
 interval (x-axis) and the average number of steps taken, averaged across all
 weekday days or weekend days (y-axis).
 
-```{r}
+```{r warning=FALSE}
 stepsPerIntervalByWeek <-
   aggregate(activityImputed, list(interval = activityImputed$interval, week = activityImputed$week), mean)
 stepsPerIntervalByWeek$time <- formatC(stepsPerIntervalByWeek$interval, width = 4, format = "d", flag = "0")
