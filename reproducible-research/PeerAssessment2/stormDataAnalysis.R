@@ -6,5 +6,8 @@ if (!file.exists(destFile)) {
   download.file(url, destFile, method="curl")
 }
 
+if (!file.exists(dataFile)) {
+  system(paste("bunzip2 ", destFile, sep=""))
+}
 
-data <- readLines(con <- bzfile(destFile))
+stormData <- read.csv(dataFile)
