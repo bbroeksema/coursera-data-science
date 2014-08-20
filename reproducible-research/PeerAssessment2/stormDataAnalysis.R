@@ -130,3 +130,14 @@ stormData$EVTYPE <- as.factor(stormData$EVTYPE)
 # > sum(is.na(stormData$INJURIES))
 # [1] 0
 # Good, we don't have missing data for injuries either
+
+# Okay, let's subset the data to get only the events that resulted in injuries,
+# fatalities or both
+
+stormDataImpactingPeople <- stormData[stormData$INJURIES > 0 |  stormData$FATALITIES > 0,]
+
+# Lets have a look at even types first
+eventTypeCounts <- as.data.frame(table(stormDataImpactingPeople$EVTYPE))
+names(eventTypeCounts) <- c("EVTYPE", "Freq")
+eventTypeCounts <- eventTypeCounts[eventTypeCounts$Freq > 0, ]
+eventTypeCounts <- eventTypeCounts[order(eventTypeCounts$Freq, decreasing = TRUE),]
