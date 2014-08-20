@@ -120,3 +120,13 @@ fixNamingIssues <- function(x) {
 
 stormData$EVTYPE <- sapply(stormData$EVTYPE, fixNamingIssues)
 stormData$EVTYPE <- as.factor(stormData$EVTYPE)
+
+### First we look at injuries and fatalities.
+
+# > sum(is.na(stormData$FATALITIES))
+# [1] 0
+# Good, we don't have missing data for fatalities
+
+# > sum(is.na(stormData$INJURIES))
+# [1] 0
+# Good, we don't have missing data for injuries either
