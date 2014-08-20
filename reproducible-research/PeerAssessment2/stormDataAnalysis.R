@@ -141,3 +141,5 @@ eventTypeCounts <- as.data.frame(table(stormDataImpactingPeople$EVTYPE))
 names(eventTypeCounts) <- c("EVTYPE", "Freq")
 eventTypeCounts <- eventTypeCounts[eventTypeCounts$Freq > 0, ]
 eventTypeCounts <- eventTypeCounts[order(eventTypeCounts$Freq, decreasing = TRUE),]
+
+other <- eventTypeCounts[eventTypeCounts$Freq == 1, "Var1"]
