@@ -6,6 +6,10 @@ if (!file.exists("stormDataAnalysis.R")) {
   stop("Set your working directory to the dir of this script...")
 }
 
+if (!file.exists("data")) {
+  dir.create("data")
+}
+
 if (!file.exists(destFile)) {
   download.file(url, destFile, method="curl")
 }
