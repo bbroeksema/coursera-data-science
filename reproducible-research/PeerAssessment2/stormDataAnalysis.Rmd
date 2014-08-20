@@ -1,20 +1,30 @@
 ---
-title: ""
+title: "Analysis of storm impact on population health and economy"
 output: pdf_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Synopsis
 
-```{r}
-summary(cars)
-```
+10 sentence summary here
 
-You can also embed plots, for example:
+In this analysis report we look at the National Oceanic and Atmospheric
+Administration's (NOAA) storm database, to address questions with respect to the
+impact of weather events on the economy and the population's health.
+More specifically, we will identify the types of events that are most harmful.
 
-```{r, echo=FALSE}
-plot(cars)
-```
+Summarizing, we have found that ... are most harmful for the population's health.
+Also, we have found that ... have the greatest economic consequences.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Data processing
+
+
+describes (in words and code) how the data were loaded into R and processed for
+analysis. In particular, your analysis must start from the raw CSV file
+containing the data. You cannot do any preprocessing outside the document. If
+preprocessing is time-consuming you may consider using the cache = TRUE option
+for certain code chunks.
+
+# Results
+
+In which your results are presented.
