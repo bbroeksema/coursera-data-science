@@ -1,3 +1,7 @@
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 destFile <- "data/stormData.csv.bz2"
 dataFile <- "data/stormData.csv"
@@ -141,3 +145,42 @@ eventTypeCounts <- eventTypeCounts[eventTypeCounts$Freq > 0, ]
 eventTypeCounts <- eventTypeCounts[order(eventTypeCounts$Freq, decreasing = TRUE),]
 
 other <- eventTypeCounts[eventTypeCounts$Freq == 1, "Var1"]
+
+summary <- stormDataImpactingPeople %>%
+  group_by(EVTYPE) %>%
+  select(EVTYPE, FATALITIES, INJURIES) %>%
+  summarise(
+    FATALITIES = sum(FATALITIES),
+    INJURIES = sum(INJURIES),
+    ALL = FATALITIES + INJURIES
+  ) %>%
+  arrange(desc(ALL), desc(FATALITIES), desc(INJURIES))
+
+# Let's see which events cause 95% of the total injuries and fatalities
+ninetyfivePercentCount <- sum(summary$ALL) * 0.95
+rows <- 1
+repeat {
+   count <- sum(summary$ALL[1:rows])
+   print(count)
+   if (count >= ninetyfivePercentCount) {
+     break
+   } else {
+     rows <- rows + 1
+   }
+}
+
+# Prepare the data for plotting
+# NOTE: TORNADO's are by far the dominating event, so I'll leave those out in
+# the plots and mention them in the text of the report.
+plotData <- summary[2:rows, ]
+plotData <- melt(plotData, id=c("EVTYPE"))
+names(plotData) <- c("EventType", "Category", "Count")
+
+# Contstruct a plot summarizing 
+g <- ggplot(plotData, aes(x=reorder(EventType, Count), y=Count)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~ Category, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Event types") +
+  ylab("Count")
+g
