@@ -123,6 +123,19 @@ fixNamingIssues <- function(x) {
 stormData$EVTYPE <- sapply(stormData$EVTYPE, fixNamingIssues)
 stormData$EVTYPE <- as.factor(stormData$EVTYPE)
 
+# Merge the date and start time columns into one column
+
+# First get rid of the time in the date field
+stormData$DATE_TIME <- sub("\\s+0:00:00", "", stormData$BGN_DATE)
+# Now concatenate all the date/time info and transform it into a real date object
+stormData$DATE_TIME <- paste(stormData$DATE_TIME, stormData$BGN_TIME)
+
+convertToDateTime <- function(dtString, tz) {
+  strftime(strptime(dtString, tz=tz, format="%m/%d/%Y %H%M"), tz=tz)
+}
+
+stormData$DATETIME <- mapply(convertToDateTime, stormData$DATE_TIME, stormData$TIME_ZONE, SIMPLIFY = TRUE)
+
 ### First we look at injuries and fatalities.
 
 # > sum(is.na(stormData$FATALITIES))
