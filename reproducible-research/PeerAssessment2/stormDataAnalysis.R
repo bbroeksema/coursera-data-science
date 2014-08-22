@@ -194,3 +194,88 @@ g <- ggplot(healthPlotData, aes(x=reorder(EventType, Count), y=Count)) +
   xlab("Event types") +
   ylab("Count")
 g
+
+## Lets look at the economic impact now
+
+stormDataEconomic <- stormData[stormData$PROPDMG > 0 | stormData$CROPDMG > 0, ]
+stormDataEconomic$PROPDMGEXP <- toupper(stormDataEconomic$PROPDMGEXP)
+stormDataEconomic$CROPDMGEXP <- toupper(stormDataEconomic$CROPDMGEXP)
+
+unifyDamage <- function(amount, exp) {
+  
+  if (!is.na(suppressWarnings(as.numeric(exp)))) {
+    amount <- amount * 10^as.numeric(exp)
+  } else {
+    if (exp == "") { } # do nothing, keep the amount as is.
+    else if (exp == "K") { amount <- amount * 1000 }
+    else if (exp == "M") { amount <- amount * 1000000 }
+    else if (exp == "B") { amount <- amount * 1000000000 }
+    else { amount <- NA } # +, -, or H, I don't know what to with these so we ignore them
+  }
+  
+  amount
+}
+
+stormDataEconomic$PROPDMG.clean <- mapply(unifyDamage,
+                                          stormDataEconomic$PROPDMG,
+                                          stormDataEconomic$PROPDMGEXP,
+                                          SIMPLIFY = TRUE)
+
+stormDataEconomic$CROPDMG.clean <- mapply(unifyDamage,
+                                          stormDataEconomic$CROPDMG,
+                                          stormDataEconomic$CROPDMGEXP,
+                                          SIMPLIFY = TRUE)
+
+# We have cleaned up the values of property damage, let's do some verification
+
+damagerows <- nrow(stormDataEconomic)
+nadamage <- nrow(stormDataEconomic[is.na(stormDataEconomic$PROPDMG.clean) | is.na(stormDataEconomic$CROPDMG.clean),])
+
+damagerows
+nadamage
+# [1] 19
+
+# NOTE: Further investigation is required to see if these 41 observations
+#       represent significant damage. It was not possible, due to time
+#       constraints to look into this. However, this is 19 rows out of 245031,
+#       which is a really small proportion, so I think it is safe to ignore them
+#       for now.
+
+stormDataEconomic <- stormDataEconomic[!is.na(stormDataEconomic$PROPDMG.clean) & !is.na(stormDataEconomic$CROPDMG.clean),]
+
+economicSummary <- stormDataEconomic %>%
+  group_by(EVTYPE) %>%
+  select(EVTYPE, PROPDMG.clean, CROPDMG.clean) %>%
+  summarise(
+    PROPDMG = sum(PROPDMG.clean),
+    CROPDMG = sum(CROPDMG.clean),
+    ALL = PROPDMG + CROPDMG
+  ) %>%
+  arrange(desc(ALL))
+
+# Let's see which events cause 95% of the total damage
+ninetyfivePercentCount <- sum(economicSummary$ALL) * 0.95
+rows <- 1
+repeat {
+  count <- sum(economicSummary$ALL[1:rows])
+  if (count >= ninetyfivePercentCount) {
+    break
+  } else {
+    rows <- rows + 1
+  }
+}
+
+economicPlotData <- economicSummary[1:rows, ]
+economicPlotData <- melt(economicPlotData, id=c("EVTYPE"))
+names(economicPlotData) <- c("EventType", "Category", "Amount")
+economicPlotData$Amount <- economicPlotData$Amount / 1000000000
+
+
+# Contstruct a plot summarizing 
+g <- ggplot(economicPlotData, aes(x=reorder(EventType, Amount), y=Amount)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~ Category, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Event types") +
+  ylab("Amount (Bilions)")
+g

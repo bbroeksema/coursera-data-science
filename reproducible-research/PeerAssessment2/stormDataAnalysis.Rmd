@@ -10,15 +10,19 @@ knitr::opts_chunk$set(cache=TRUE)
 
 # Synopsis
 
-10 sentence summary here
-
 In this analysis report we look at the National Oceanic and Atmospheric
 Administration's (NOAA) storm database, to address questions with respect to the
 impact of weather events on the economy and the population's health.
 More specifically, we will identify the types of events that are most harmful.
 
-Summarizing, we have found that ... are most harmful for the population's health.
-Also, we have found that ... have the greatest economic consequences.
+Summarizing, we have found that thunderstorm winds, excessive heat, and flood,
+are most harmful for the population's health.
+Also, we have found that flood, hurricane's, and tornado's have the greatest
+economic consequences.
+
+The remainder of this report details how this information was extracted, and
+gives more detailed break-down information on impact of weather events on
+population health and economy.
 
 # Data processing
 
@@ -32,6 +36,10 @@ further processing. Additionally some checks are performed to prevent
 re-downloading and unpacking the data unnecesarily.
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 destFile <- "data/stormData.csv.bz2"
 dataFile <- "data/stormData.csv"
@@ -177,7 +185,7 @@ subset the data to get only the events that resulted in injuries, fatalities
 or both.
 
 ```{r}
-stormDataImpactingPeople <- stormData[stormData$INJURIES > 0 |  stormData$FATALITIES > 0,]
+stormDataHealth <- stormData[stormData$INJURIES > 0 |  stormData$FATALITIES > 0,]
 ```
 
 We now reshape the data to make it more suitable for plotting. We want to know
@@ -225,12 +233,105 @@ healthPlotData <- melt(healthPlotData, id=c("EVTYPE"))
 names(healthPlotData) <- c("EventType", "Category", "Count")
 ```
 
+## Economic impact
+
+We take a similar approach as with the health impact. First we select the events
+for which an amount was recorderd for either property damage or crop damage.
+
+```{r}
+stormDataEconomic <- stormData[stormData$PROPDMG > 0 | stormData$CROPDMG > 0, ]
+```
+
+Some additional cleaning is required. For each amount type there are two
+columns, a number and an exponent. To make the amounts comparable we unify the
+amounts by calculating it as an absolute number.
+
+```{r}
+stormDataEconomic$PROPDMGEXP <- toupper(stormDataEconomic$PROPDMGEXP)
+stormDataEconomic$CROPDMGEXP <- toupper(stormDataEconomic$CROPDMGEXP)
+
+unifyDamage <- function(amount, exp) {
+  if (!is.na(suppressWarnings(as.numeric(exp)))) {
+    amount <- amount * 10^as.numeric(exp)
+  } else {
+    if (exp == "") { } # do nothing, keep the amount as is.
+    else if (exp == "K") { amount <- amount * 1000 }
+    else if (exp == "M") { amount <- amount * 1000000 }
+    else if (exp == "B") { amount <- amount * 1000000000 }
+    else { amount <- NA } # +, -, or H, I don't know what to with these so we ignore them
+  }
+  
+  amount
+}
+
+stormDataEconomic$PROPDMG.clean <- mapply(unifyDamage,
+                                          stormDataEconomic$PROPDMG,
+                                          stormDataEconomic$PROPDMGEXP,
+                                          SIMPLIFY = TRUE)
+
+stormDataEconomic$CROPDMG.clean <- mapply(unifyDamage,
+                                          stormDataEconomic$CROPDMG,
+                                          stormDataEconomic$CROPDMGEXP,
+                                          SIMPLIFY = TRUE)
+```
+
+We have cleaned up the values of property damage, let's do some verification.
+
+```{r}
+damagerows <- nrow(stormDataEconomic)
+damagerowsna <- nrow(stormDataEconomic[is.na(stormDataEconomic$PROPDMG.clean) |
+                                         is.na(stormDataEconomic$CROPDMG.clean),])
+```
+
+**NOTE:** Further investigation is required to see if these 41 observations 
+represent significant damage. It was not possible, due to time constraints to
+look into this. However, this is `r damagerowsna` rows out of `r damagerows`, which
+is a really small proportion, so I think it is safe to ignore them for now.
+
+Next we create the summary data for plotting, using the same reasoning as for the
+health impact. We take the events that make up for 95% of the damage.
+
+```{r}
+stormDataEconomic <- stormDataEconomic[!is.na(stormDataEconomic$PROPDMG.clean) &
+                                         !is.na(stormDataEconomic$CROPDMG.clean),]
+
+economicSummary <- stormDataEconomic %>%
+  group_by(EVTYPE) %>%
+  select(EVTYPE, PROPDMG.clean, CROPDMG.clean) %>%
+  summarise(
+    PROPDMG = sum(PROPDMG.clean),
+    CROPDMG = sum(CROPDMG.clean),
+    ALL = PROPDMG + CROPDMG
+  ) %>%
+  arrange(desc(ALL))
+
+# Let's see which events cause 95% of the total damage
+ninetyfivePercentCount <- sum(economicSummary$ALL) * 0.95
+rows <- 1
+repeat {
+  count <- sum(economicSummary$ALL[1:rows])
+  if (count >= ninetyfivePercentCount) {
+    break
+  } else {
+    rows <- rows + 1
+  }
+}
+
+economicPlotData <- economicSummary[1:rows, ]
+economicPlotData <- melt(economicPlotData, id=c("EVTYPE"))
+names(economicPlotData) <- c("EventType", "Category", "Amount")
+# Divede by A bilion to get the amount in bilions for better readability in the
+# plot.
+economicPlotData$Amount <- economicPlotData$Amount / 1000000000
+```
+
+
 # Results
 
 In this section we present some plots, summarizing the most relevant information
-with respect to impact of events on health and property damage.
+with respect to impact of events on health and the economy.
 
-## Health
+## Health impact
 
 As, mentioned in the Data processing section, tornado's are causing most of the
 injuries and fatalities. For further analysis of the remaining events, which
@@ -250,4 +351,31 @@ g
 
 From the plots we learn that:
 
-1. The top
+1. The three top events, causing injuries and fatilites are: thunderstorms, excessive heat, and flood.
+1. Those three are also responsible for the most injuries.
+1. While heat and flashsfloods are next to thunderstorms, the events causing most causalities.
+
+## Economic impact
+
+Like for the health data, we construct a plot showing damage to property, crops
+and totals, for 95% of the caused damage.
+
+```{r fig.cap='this is one plot'}
+g <- ggplot(economicPlotData, aes(x=reorder(EventType, Amount), y=Amount)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~ Category, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Event types") +
+  ylab("Amount (Bilions)")
+g
+```
+
+From the plots we learn that:
+
+1. The three top events, causing property and crop damage are: flood, hurricanes, and tornados.
+1. Those three are also responsible for the most property damage.
+1. Heat, icestorms and flooding are causing most damage on crops.
+
+If time would have permitted, I would have added a time series plot to show when
+these events occurred over time. Time doesn't permit though, so no such a plot
+here.
