@@ -1,26 +1,109 @@
 ---
-title: "Motor Trend Analysis"
-author: "Bertjan Broeksema"
+title: "Regression models - Course project - Motor Trend Analysis"
 date: "01/16/2015"
 output: pdf_document
 ---
 
-You work for Motor Trend, a magazine about the automobile industry. Looking at a
-data set of a collection of cars, they are interested in exploring the
-relationship between a set of variables and miles per gallon (MPG) (outcome).
-They are particularly interested in the following two questions:
+In this report we try to addres the  the following two questions:
 
 * “Is an automatic or manual transmission better for MPG”
 * "Quantify the MPG difference between automatic and manual transmissions"
 
+We have found that manual transmission overall, seems to give a better mpg than
+automatic transmission. In this report we show though, that other variables such
+as number of cylinders, weight and horsepower, play an important role as well.
+
+# Sanity check
+
+First we look at the data to have an idea what we're looking at. We see that,
+next to mpg, we have `r ncol(mtcars) - 1` numeric columns. 
+
+```{r, results="hide"}
+data(mtcars)
+str(mtcars)  # See appendix for results
+```
+
+However, some of them should be treated as factor:
+
 ```{r}
-summary(cars)
+mtcars$cyl <- factor(mtcars$cyl)
+mtcars$vs <- factor(mtcars$vs, labels=c("V-engine", "Straight engine"))
+mtcars$gear <- factor(mtcars$gear)
+mtcars$carb <- factor(mtcars$carb)
+mtcars$am <- factor(mtcars$am,labels=c('Automatic','Manual'))
 ```
 
-You can also embed plots, for example:
+# Exploratory analysis
 
-```{r, echo=FALSE}
-plot(cars)
+We draw a pairs plot to have a first look at the relation ship between mpg and
+the other variables (see appendix). There we already see some trends, such as
+
+* An increase in number of cylinders tends to lead to a decrease in mpg.
+* An increase in hp tends to lead to a decrease in mpg.
+* An increase in rear axle ratio tends (though more varition) to lead to an increase in mpg.
+* An increase in weight, seems to lead to a decrease in mpg
+
+# Model fitting
+
+We now fit a linear model, initially using all variables and see if we get
+results which are usable. When looking at the summary, we see that we get high
+p-values for all variables, suggesting that this model is not such a good fit.
+We choose a better model by using a step wise algorithm, in backward direction
+(i.e. remove candidates from the fit).
+
+```{r, results="hide"}
+vars.all <- lm(mpg ~ ., data = mtcars)
+vars.best.fit <- step(vars.all, direction = "backward")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+summary(vars.best.fit)
+```
+
+**Interpretation:** From this model's summary we see that the structure in the
+data is reasonably well explained by the variables (or variable values in case
+of categorical variables): cylinder 16, cylinder 18, horsepower, weight and manual
+transmision. Most of those variables have pretty low p-values (< 0.05), which increases
+our confidence in the model. Additionally, we see that the R-squared values are
+pretty high, that is around 84 percent of the in- or decrease in milage per gallon
+is explained by our model. Finally, we see that the 1st and 3rd quantiles of the
+residuals are about the same as `1.5 +/- std error` given a strong hint that the
+residuals are normally distributed. This observation is further strengthened by
+the normal q-q plot (see appendix), though there some outliers become apparent.
+
+From this model, we see that we can expect an `1.8092` increase in mpg when
+changing from automatic to manual, keeping all other variables fixed. This
+suggests that having a manual car is better for mpg. To further test this
+hypothesis, we perform a t-test:
+
+```{r, results="hide"}
+t.test(mpg ~ am, data = mtcars) # See appendix
+```
+
+Finally, we construct a 95% confidence interval to find the values below. This
+still includes a possible decrease, which shows that just switching from
+automatic to manual is not to be sure (with earlier mentioned confidence) that
+it will actually increase milage.
+
+```{r}
+confint(vars.best.fit)["amManual",]
+```
+
+# Appendix
+
+```{r}
+str(mtcars)
+```
+
+```{r, results="hide"}
+pairs(mpg ~ ., data=mtcars)
+```
+
+```{r, results="hide"}
+par(mfrow=c(2,2))
+plot(vars.best.fit)
+```
+
+```{r}
+t.test(mpg ~ am, data = mtcars) # See appendix
+```
