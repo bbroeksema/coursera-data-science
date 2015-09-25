@@ -1,4 +1,6 @@
 library(GGally)
+library(ggplot2)
+library(FactoMineR)
 
 data(iris)
 
@@ -44,12 +46,13 @@ shinyServer(function(input, output, session) {
   })
 
   output$pcaPlot <- renderPlot({
-    pca <- FactoMineR::PCA(iris[,1:4])
+    pca <- PCA(iris[,1:4])
     dat <- as.data.frame(pca$ind$coord[, c("Dim.1", "Dim.2")])
     dat$cluster <- as.factor(color())
 
-    ggplot(dat, aes(x = Dim.1, y = Dim.2, color=cluster)) +
-      geom_point()
+    p <- ggplot(dat, aes(x = Dim.1, y = Dim.2, color=cluster))
+    p <- p + geom_point()
+    print(p)
   })
 
 })
